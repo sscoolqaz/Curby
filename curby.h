@@ -2,7 +2,9 @@
 #define CURBY_H
 #include <stdio.h> 
 #include <iostream>
+#include <cmath>
 
+// tbh I dont think I need this
 
 // all of these will get setup during initialization
 class Config{
@@ -13,8 +15,8 @@ class Config{
         int mid = 55;
         // Lower Limit in RPM
         int minSpeed = 2300;
-        // current speed
-        int cSpeed = 2300;
+        // current speed, 0 on init
+        int cSpeed = 0;
         // Upper Limit in RPM
         int maxSpeed = 5500;
         // number of fans in the system
@@ -23,8 +25,17 @@ class Config{
         std::string fPath1 = "/sys/devices/platform/applesmc.768/fan1_min";
         // fan path 2
         std::string fPath2 = "/sys/devices/platform/applesmc.768/fan2_min";
-
+        // config location
+        std::string location = "/etc/curby/curby.conf";
 };
+
+// takes Upper limit, Lower limit, the "k"urviture, and midpoint
+// f(x) = ((U-L)/(1+e^(-k*(x-xsub0)))+L
+int sigmoid(int x, int upperLimit, int lowerLimit, float kurve, int midpoint){
+    
+    return (((upperLimit - lowerLimit) / (1+(exp(-1*(kurve)*(x-midpoint)))))+lowerLimit);
+    
+}  
 
 int getDieTemp(){
 
@@ -58,15 +69,19 @@ void setSpeed(int nSpeed, std::string speedPath){
     FILE *fSpeed = fopen(speedPath.c_str(), "r+");
 
     // converts int to char array ig
-    std::string strSpeed = std::to_string(nSpeed);
-    fputs(strSpeed.c_str(), fSpeed);
+    //std::string strSpeed = std::to_string(nSpeed);
+    fputs(std::to_string(nSpeed).c_str(), fSpeed);
 
     // cleanup
     fclose(fSpeed);
 
 }
 
-//void setConfig(class config){
-    
-//}
+void setConfig(Config conf){
+    // config in /etc/curby/curby.conf
+    // opens .conf to pull user data
+    FILE *fonfig = fopen(conf.location.c_str(), "r");
+
+    fclose(fonfig);
+}
 #endif

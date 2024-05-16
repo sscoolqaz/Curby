@@ -1,2 +1,1 @@
-gcc curby.cpp -lstdc++ -o curby -lm -include curby.h
-
+gcc curby.cpp -lstdc++ -o curby -lm
