@@ -67,18 +67,21 @@ int getDieTemp(std::string temp5){
     return (atoi(tempstring)/1000);
 }
 
-void setSpeed(int nSpeed, std::string speedPath, int iterator){
+void setSpeed(int nSpeed, std::string speedPath, int fanNum){
 
-    // opens file for reading and writing without making a new one, I think
-    FILE *fSpeed = fopen((speedPath + "fan" + std::to_string(iterator) + "_min").c_str(), "r+");
-    filecheck(fSpeed, (speedPath + "fan" + std::to_string(iterator) + "_min"));
+    // run the loop here to prevent fan speed mismatch
+    for (int i = 1; i <= fanNum; i++){
+        // opens file for reading and writing without making a new one, I think
+        FILE *fSpeed = fopen((speedPath + "fan" + std::to_string(i) + "_min").c_str(), "r+");
+        filecheck(fSpeed, (speedPath + "fan" + std::to_string(i) + "_min"));
 
-    // converts int to char array ig
-    //std::string strSpeed = std::to_string(nSpeed);
-    fputs(std::to_string(nSpeed).c_str(), fSpeed);
+        // converts int to char array ig
+        //std::string strSpeed = std::to_string(nSpeed);
+        fputs(std::to_string(nSpeed).c_str(), fSpeed);
 
-    // cleanup
-    fclose(fSpeed);
+        // cleanup
+        fclose(fSpeed);
+    }
 
 }
 
@@ -105,10 +108,9 @@ int main() {
     // read temp1_input for die temp
     while (true){
     	
-        // echo's speed value to driver fanX_min to change speed
-        for (int i = 1; i <= Conf.fanNum; i++){
-            setSpeed(sigmoid(getDieTemp(Conf.TC0C), Conf.maxSpeed, Conf.minSpeed, Conf.steep, Conf.mid), Conf.dPath, i);
-        }
+        // based on a sigmoid function where x = the die temp set the speed of the fans
+        setSpeed(sigmoid(getDieTemp(Conf.TC0C), Conf.maxSpeed, Conf.minSpeed, Conf.steep, Conf.mid), Conf.dPath, Conf.fanNum);
+    
         //testing
         //std::cout << "Current RPM: " << Conf.cSpeed << ", DieTemp: " << getDieTemp() << "\r";
     }
