@@ -29,7 +29,7 @@ class Config{
 void filecheck(FILE *checkme, std::string fLocation){
     // checks if file is empty
     if (checkme == NULL){
-        std::clog << "Error Opening " << fLocation << ", does it exist?";
+        std::clog << "Error Opening " << fLocation << ", does it exist?" << std::endl;
         exit(1);
     }
 }
@@ -59,7 +59,6 @@ int getDieTemp(std::string temp5){
     char tempstring[6];
 
     // reads the entire line, there's only one lol
-    // and converts the char array to a number
     fgets(tempstring, 6, f);
 
     // cleanup
@@ -72,7 +71,7 @@ void setSpeed(int nSpeed, std::string speedPath, int iterator){
 
     // opens file for reading and writing without making a new one, I think
     FILE *fSpeed = fopen((speedPath + "fan" + std::to_string(iterator) + "_min").c_str(), "r+");
-    filecheck(fSpeed, speedPath);
+    filecheck(fSpeed, (speedPath + "fan" + std::to_string(iterator) + "_min"));
 
     // converts int to char array ig
     //std::string strSpeed = std::to_string(nSpeed);
@@ -107,7 +106,7 @@ int main() {
     while (true){
     	
         // echo's speed value to driver fanX_min to change speed
-        for (int i = 1; i < Conf.fanNum+1, i++;){
+        for (int i = 1; i < Conf.fanNum, i++;){
             setSpeed(sigmoid(getDieTemp(Conf.TC0C), Conf.maxSpeed, Conf.minSpeed, Conf.steep, Conf.mid), Conf.dPath, i);
         }
         //testing
