@@ -18,12 +18,10 @@ class Config{
         int maxSpeed = 5500;
         // number of fans in the system
         int fanNum = 1;
-        // fan path 1
-        std::string fPath1 = "/sys/devices/platform/applesmc.768/fan1_min";
-        // fan path 2
-        std::string fPath2 = "/sys/devices/platform/applesmc.768/fan2_min";
+        // DriverPath
+        std::string dPath = "/sys/devices/platform/applesmc.768/";
         // config location
-        std::string location = "/etc/curby/curby.conf";
+        std::string cLocation = "/etc/curby/curby.conf";
         // temp5 is TC0C, ie the die in applese
         std::string TC0C = "/sys/devices/platform/applesmc.768/temp5_input";
 };
@@ -34,6 +32,13 @@ void filecheck(FILE *checkme, std::string fLocation){
         std::clog << "Error Opening " << fLocation << ", does it exist?";
         exit(1);
     }
+}
+
+void sighandler(int s){
+    
+    std::clog << "Exited with " << s << " code."; // output signal to log
+    exit(1);
+
 }
 
 // takes Upper limit, Lower limit, the "k"urviture, and midpoint
@@ -63,10 +68,10 @@ int getDieTemp(std::string temp5){
     return (atoi(tempstring)/1000);
 }
 
-void setSpeed(int nSpeed, std::string speedPath){
+void setSpeed(int nSpeed, std::string speedPath, int iterator){
 
     // opens file for reading and writing without making a new one, I think
-    FILE *fSpeed = fopen(speedPath.c_str(), "r+");
+    FILE *fSpeed = fopen((speedPath + "fan" + std::to_string(iterator) + "_min").c_str(), "r+");
     filecheck(fSpeed, speedPath);
 
     // converts int to char array ig
@@ -81,16 +86,9 @@ void setSpeed(int nSpeed, std::string speedPath){
 void setConfig(Config conf){
     // config in /etc/curby/curby.conf
     // opens .conf to pull user data
-    FILE *fonfig = fopen(conf.location.c_str(), "r");
+    FILE *fonfig = fopen(conf.cLocation.c_str(), "r");
 
     fclose(fonfig);
-}
-
-void sighandler(int s){
-    
-    std::clog << "Exited with " << s << " code."; // output signal to log
-    exit(1);
-
 }
 
 int main() {
@@ -109,12 +107,9 @@ int main() {
     while (true){
     	
         // echo's speed value to driver fanX_min to change speed
-        setSpeed(sigmoid(getDieTemp(Conf.TC0C), Conf.maxSpeed, Conf.minSpeed, Conf.steep, Conf.mid), Conf.fPath1);
-
-        if (Conf.fanNum == 2){
-            setSpeed(sigmoid(getDieTemp(Conf.TC0C), Conf.maxSpeed, Conf.minSpeed, Conf.steep, Conf.mid), Conf.fPath2);
+        for (int i = 1; i < Conf.fanNum+1, i++;){
+            setSpeed(sigmoid(getDieTemp(Conf.TC0C), Conf.maxSpeed, Conf.minSpeed, Conf.steep, Conf.mid), Conf.dPath, i);
         }
-
         //testing
         //std::cout << "Current RPM: " << Conf.cSpeed << ", DieTemp: " << getDieTemp() << "\r";
     }
