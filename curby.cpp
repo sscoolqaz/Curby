@@ -66,6 +66,12 @@ void setSpeed(int nSpeed, std::string speedPath, int fanNum){
 
 }
 
+void readConfig(int fanNum, int minSpeed, int maxSpeed, int kurve, int midpoint, std::string configPath){
+
+    FILE *fConfig = fopen(configPath.c_str(), "r");
+    fclose(fConfig);
+}
+
 void configure(std::string configPath, int k, int m){
 
     std::string uInput;
@@ -78,7 +84,7 @@ void configure(std::string configPath, int k, int m){
     }
     fputs(("fanNum="    + uInput + "\n").c_str(), fConfig);
 
-    std::cout << "Fans MAXIMUM recommended speed: (Default is 2300)\n";
+    std::cout << "Fans MINIMUM recommended speed: (Default is 2300)\n";
     getline(std::cin, uInput);
     if (uInput.empty()){
         uInput = "2300";
@@ -90,7 +96,7 @@ void configure(std::string configPath, int k, int m){
     if (uInput.empty()){
         uInput = "5500";
     }
-    fputs(("minSpeed="  + uInput + "\n").c_str(), fConfig);
+    fputs(("maxSpeed="  + uInput + "\n").c_str(), fConfig);
     
     std::cout << "You can fine tune the curve and adjust other settings in:\n" << configPath << "\n";
     fputs(("kurve="     + std::to_string(k) + "\n").c_str(), fConfig);
@@ -128,7 +134,7 @@ int main(int argc, char* argv[]) {
     // DriverPath
     std::string dPath = "/sys/devices/platform/applesmc.768/";
     // config location
-    std::string cLocation = "/etc/curby/curby.conf";
+    std::string cPath = "/etc/curby/curby.conf";
 
     // argument handler
     while((opt = getopt(argc, argv, "if:c")) != -1) {
@@ -136,13 +142,15 @@ int main(int argc, char* argv[]) {
         switch(opt) {
             case 'c':
 
-                configure(cLocation, kurve, midpoint);
+                configure(cPath, kurve, midpoint);
 
             default:
                 break;
             
         }
     }
+
+    readConfig(fanNum, minSpeed, maxSpeed, kurve, midpoint, cPath);
 
     // read temp1_input for die temp
     while (true){
