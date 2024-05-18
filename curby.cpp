@@ -5,26 +5,7 @@
 // for signal management
 #include <signal.h>
 #include <cmath>
-
-class Config{
-    public:
-        // function steepness
-        float steep = 0.17;
-        // function midpoint location;
-        int mid = 55;
-        // Lower Limit in RPM
-        int minSpeed = 2300;
-        // Upper Limit in RPM
-        int maxSpeed = 5500;
-        // number of fans in the system
-        int fanNum = 1;
-        // DriverPath
-        std::string dPath = "/sys/devices/platform/applesmc.768/";
-        // config location
-        std::string cLocation = "/etc/curby/curby.conf";
-        // temp5 is TC0C, ie the die in applese
-        std::string TC0C = "/sys/devices/platform/applesmc.768/temp5_input";
-};
+#include <unistd.h>
 
 void filecheck(FILE *checkme, std::string fLocation){
     // checks if file is empty
@@ -69,7 +50,7 @@ int getDieTemp(std::string temp5){
 
 void setSpeed(int nSpeed, std::string speedPath, int fanNum){
 
-    // run the loop here to prevent fan speed mismatch
+    // run the loop here to prevent fan speed race hazard
     for (int i = 1; i <= fanNum; i++){
         // opens file for reading and writing without making a new one, I think
         FILE *fSpeed = fopen((speedPath + "fan" + std::to_string(i) + "_min").c_str(), "r+");
@@ -85,32 +66,54 @@ void setSpeed(int nSpeed, std::string speedPath, int fanNum){
 
 }
 
-void setConfig(Config conf){
-    // config in /etc/curby/curby.conf
-    // opens .conf to pull user data
-    FILE *fonfig = fopen(conf.cLocation.c_str(), "r");
+void setConfig(std::string confLoc){
 
-    fclose(fonfig);
+    exit(0);
 }
 
-int main() {
+void configure(std::string confLoc){
+
+    exit(0);
+}
+
+int main(int argc, char* argv[]) {
 
     // sets up signal handlers incase of process death via outside means
     signal(SIGINT, sighandler);  // sigint ie ctrl + c
     signal(SIGTERM, sighandler); // sigterm ie systemd stop or pkill
 
-    // initialize the class
-    Config Conf;
+    // arguments
+    int opt;
+    // function steepness
+    float steep = 0.1;
+    // function midpoint location;
+    int mid = 55;
+    // Lower Limit in RPM
+    int minSpeed = 2300;
+    // Upper Limit in RPM
+    int maxSpeed = 5500;
+    // number of fans in the system
+    int fanNum = 1;
+    // DriverPath
+    std::string dPath = "/sys/devices/platform/applesmc.768/";
+    // config location
+    std::string cLocation = "/etc/curby/curby.conf";
     
-    //setConfig(Conf);
+    while((opt = getopt(argc, argv, "if:lrx")) != 1) {
+    
+        switch(opt) {
+            case 'c':
+                setConfig(cLocation);
+        }  
+    }
 
 
     // read temp1_input for die temp
     while (true){
     	
         // based on a sigmoid function where x = the die temp set the speed of the fans
-        setSpeed(sigmoid(getDieTemp(Conf.TC0C), Conf.maxSpeed, Conf.minSpeed, Conf.steep, Conf.mid), Conf.dPath, Conf.fanNum);
-    
+        setSpeed(sigmoid(getDieTemp(dPath+"temp5_input"), maxSpeed, minSpeed, steep, mid), dPath, fanNum);
+        usleep(200000); // give the CPU some time off
         //testing
         //std::cout << "Current RPM: " << Conf.cSpeed << ", DieTemp: " << getDieTemp() << "\r";
     }
