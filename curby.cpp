@@ -102,6 +102,13 @@ void configure(std::string configPath, int k, int m){
 
 int main(int argc, char* argv[]) {
 
+    if(geteuid() != 0){
+
+        std::cout << "Run Curby as root";
+        exit(0);
+
+    }
+
     // sets up signal handlers incase of process death via outside means
     signal(SIGINT, sighandler);  // sigint ie ctrl + c
     signal(SIGTERM, sighandler); // sigterm ie systemd stop or pkill
@@ -128,7 +135,9 @@ int main(int argc, char* argv[]) {
     
         switch(opt) {
             case 'c':
+
                 configure(cLocation, kurve, midpoint);
+
             default:
                 break;
             
