@@ -106,7 +106,7 @@ int main() {
     while (true){
     	
         // echo's speed value to driver fanX_min to change speed
-        for (int i = 1; i < Conf.fanNum, i++;){
+        for (int i = 1; i < Conf.fanNum; i++){
             setSpeed(sigmoid(getDieTemp(Conf.TC0C), Conf.maxSpeed, Conf.minSpeed, Conf.steep, Conf.mid), Conf.dPath, i);
         }
         //testing
