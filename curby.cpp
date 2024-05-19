@@ -66,13 +66,54 @@ void setSpeed(int nSpeed, std::string speedPath, int fanNum){
 
 }
 
-void readConfig(int fanNum, int minSpeed, int maxSpeed, int kurve, int midpoint, std::string configPath){
+void readConfig(int *fanNum, int *minSpeed, int *maxSpeed, float *kurve, int *midpoint, std::string configPath){
 
     FILE *fConfig = fopen(configPath.c_str(), "r");
+
+    // this whole thing searches for a needle (vars) in a haystack (configuration file)
+    // and updates the variables according to what it found.
+    char haystack[256];
+    std::string needle;
+    while ((fgets(haystack, sizeof(haystack), fConfig) != NULL)){
+        
+        if(std::string(haystack).find("fanNum")   != std::string::npos){
+            // searches for the substring after the delimiter
+            needle = (std::string(haystack).substr(std::string(haystack).find("=")+1));
+            needle.pop_back();
+            *fanNum = stoi(needle);
+            std::clog << "fanNum = " << *fanNum << std::endl;
+        }
+        if(std::string(haystack).find("minSpeed") != std::string::npos){
+            needle = (std::string(haystack).substr(std::string(haystack).find("=")+1));
+            needle.pop_back();
+            *minSpeed = stoi(needle);
+            std::clog << "minspeed = " << *minSpeed << std::endl;
+        }
+        if(std::string(haystack).find("maxSpeed") != std::string::npos){
+            needle = (std::string(haystack).substr(std::string(haystack).find("=")+1));
+            needle.pop_back();
+            *maxSpeed = stoi(needle);
+            std::clog << "maxSpeed = " << *maxSpeed << std::endl;
+        }
+        if(std::string(haystack).find("kurve")    != std::string::npos){
+            needle = (std::string(haystack).substr(std::string(haystack).find("=")+1));
+            needle.pop_back();
+            *kurve = stof(needle);
+            std::clog << "kurve = " << *kurve << std::endl;
+        }
+        if(std::string(haystack).find("midpoint") != std::string::npos){
+            needle = (std::string(haystack).substr(std::string(haystack).find("=")+1));
+            needle.pop_back();
+            *midpoint = stoi(needle);
+            std::clog << "midpoint = " << *midpoint << std::endl;
+        }
+    }
+
+    // cleanup
     fclose(fConfig);
 }
 
-void configure(std::string configPath, int k, int m){
+void configure(std::string configPath, float k, int m){
 
     std::string uInput;
     FILE *fConfig = fopen(configPath.c_str(), "w");
@@ -110,7 +151,7 @@ int main(int argc, char* argv[]) {
 
     if(geteuid() != 0){
 
-        std::cout << "Run Curby as root";
+        std::cout << "Run Curby as root" << std::endl;
         exit(0);
 
     }
@@ -150,7 +191,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    readConfig(fanNum, minSpeed, maxSpeed, kurve, midpoint, cPath);
+    readConfig(&fanNum, &minSpeed, &maxSpeed, &kurve, &midpoint, cPath);
 
     // read temp1_input for die temp
     while (true){

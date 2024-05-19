@@ -5,6 +5,6 @@ The configuration file is located in
 /etc/Curby/Curby.conf
 
 TODO:
-Read and parse user configuration
+Read and parse user configuration DONE
 Add services files
 create package for AUR
