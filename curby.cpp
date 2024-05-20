@@ -75,6 +75,7 @@ void readConfig(int *fanNum, int *minSpeed, int *maxSpeed, float *kurve, int *mi
     FILE *fConfig = fopen(configPath.c_str(), "r");
     if (fConfig == NULL){
         std::clog << "Please configure Curby with -c";
+        exit(1);
     }
 
     // this whole thing searches for a needle (vars) in a haystack (configuration file)
@@ -82,6 +83,10 @@ void readConfig(int *fanNum, int *minSpeed, int *maxSpeed, float *kurve, int *mi
     char haystack[64];
     std::string needle;
     while ((fgets(haystack, sizeof(haystack), fConfig) != NULL)){
+
+        if(haystack[0] == '/n' or haystack[0] == '#'){
+            continue;
+        }
 
         // searches for the value in the substring after the delimiter and removes /n        
         if(std::string(haystack).find("fanNum")   != std::string::npos){
@@ -196,9 +201,9 @@ int main(int argc, char* argv[]) {
     // number of fans in the system
     int fanNum = 1;
     // DriverPath
-    std::string dPath = "/sys/devices/platform/applesmc.768/";
+    const std::string dPath = "/sys/devices/platform/applesmc.768/";
     // config location
-    std::string cPath = "/etc/curby/curby.conf";
+    const std::string cPath = "/etc/curby/curby.conf";
 
     // argument handler
     while((opt = getopt(argc, argv, "if:c")) != -1) {
