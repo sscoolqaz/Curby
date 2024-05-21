@@ -7,6 +7,13 @@ The configuration file is located in
 after install run curby -c to setup configuration
 
 TODO:
+
 Read and parse user configuration DONE
+
 Add services files DONE
-figure out wtf to do to publish to AUR
+
+figure out how to create a package for AUR
+
+create GUI and link it to KDE control panel
+
+implement other modes: Linear, Manual Override
